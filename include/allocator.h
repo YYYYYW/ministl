@@ -43,6 +43,8 @@
 #include <climits>      // for UINT_MAX
 #include <iostream>     // for cerr
 #include "alloc.h"
+#include "constructor.h"
+#include "util.h"       // for move
 
 namespace ministl {
 
@@ -55,10 +57,10 @@ inline T* _allocate(ptrdiff_t size, T*) {
      * 当传递 0 的时候，则是直接抛出 bad_alloc 异常
      * operator new 只会分配内存，不会调用构造函数
      */
-    set_new_handler(0);
+    // set_new_handler(0);
     T* tmp = (T*)(::operator new((size_t)(size * sizeof(T))));
     if (tmp == 0) {
-        cerr << "out of memory" << endl;
+        std::cerr << "out of memory" << std::endl;
         exit(1);
     }
     return tmp;
@@ -70,12 +72,12 @@ inline void _deallocate(T* buffer) {
     ::operator delete(buffer);
 }
 
-// 这里 allocator 中 allocate 和 deallocate 都是使用 operator new 实现
+
 
 
 
 // 这里 allocator 中 allocate 和 deallocate 使用了 alloc.h 文件中内存池的实现
-template<typename T, typename Alloc>
+template<typename T, typename Alloc = default_alloc_template>
 class allocator {
 
 public:
@@ -88,11 +90,12 @@ public:
     typedef ptrdiff_t   difference_type;
 
     // rebind allocator of type U
-    // TODO 还不知道这个东西有啥用
+    // 是为了能够用另一种分配器，例如 链表中，每个节点的构造需要一个分配器
+    // 每个节点中的值也需要一个分配器。
     template <class U>
     struct rebind {
         typedef allocator<U> other;
-    }
+    };
 
     // hint used for locality
     static pointer allocate(size_type n, const void* hint = 0) {
@@ -113,14 +116,16 @@ public:
         Alloc::deallocate(p, sizeof(value_type));
     }
 
+    void construct(pointer p);
 
-    void construct(pointer p, const T& value) {
-        _construct(p, value);
-    }
+    void construct(pointer p, const T& value);
+
+    void construct(pointer p, T&& value);
     
-    void destroy(pointer p) {
-        _destroy(p);
-    }
+    template <typename ... Args>
+    void construct(pointer p, Args&& ... args);
+    
+    void destroy(pointer p);
 
     pointer address(reference x) {
         return (pointer) &x;
@@ -136,7 +141,25 @@ public:
 
 };
 
+template <typename T, typename Alloc>
+void allocator<T, Alloc>::construct(pointer p) {
+    ministl::construct(p);
+}
 
+template <typename T, typename Alloc>
+void allocator<T, Alloc>::construct(pointer p, const T& value) {
+    ministl::construct(p, value);
+}
+
+template <typename T, typename Alloc>
+void allocator<T, Alloc>::construct(pointer p, T&& value) {
+    ministl::construct(p, ministl::move(value));
+}
+
+template <typename T, typename Alloc>
+void allocator<T, Alloc>::destroy(pointer p) {
+    ministl::destroy(p);
+}
 
 
 }

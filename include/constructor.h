@@ -2,9 +2,12 @@
 #ifndef MINISTL_CONSTRUCTOR_H
 #define MINISTL_CONSTRUCTOR_H
 
-namespace ministl {
 
 #include <new> // for placement new
+#include "iterator.h"
+#include "type_traits.h"
+
+namespace ministl {
 
 // 用于构造对象
 template <typename T1, typename T2>
@@ -37,20 +40,20 @@ inline void destroy(ForwardIterator first, ForwardIterator last) {
 // 判断元素的型别是否有 trivial destructor
 template <typename ForwardIterator, typename T>
 inline void _destroy(ForwardIterator first, ForwardIterator last, T*) {
-    typedef typename type_traits<T>::has_trivial_destructor trivial_destructor;
+    typedef typename ministl::type_traits<T>::has_trivial_destructor trivial_destructor;
     _destroy_aux(first, last, trivial_destructor());
 }
 
 // 如果元素的型别有 non-trivial destructor 
 template <typename ForwardIterator>
-inline void _destroy_aux(ForwardIterator first, ForwardIterator last, false_type) {
+inline void _destroy_aux(ForwardIterator first, ForwardIterator last, ministl::false_type) {
     for ( ; first < last; ++first)
         destroy(&*first);
 }
 
 // 如果元素的型别有 trivial destructor, 什么也不做
 template <typename ForwardIterator>
-inline void _destroy_aux(ForwardIterator first, ForwardIterator last, true_type) { }
+inline void _destroy_aux(ForwardIterator first, ForwardIterator last, ministl::true_type) { }
 
 // 基础类型的特化版本
 inline void _destroy(char*, char*) {}

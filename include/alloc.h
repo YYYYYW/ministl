@@ -2,9 +2,6 @@
 #ifndef MINISTL_ALLOC_H
 #define MINISTL_ALLOC_H
 
-
-namespace ministl {
-
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +11,8 @@ namespace ministl {
 #define MINISTL_THROW_BAD_ALLOC throw std::bad_alloc()
 #endif
 
+namespace ministl {
+    
 /**
  * 一级内存配置器
  * 使用 malloc 直接分配内存

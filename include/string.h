@@ -2,7 +2,7 @@
 #define MINISTL_STRING_H
 
 #include <iostream>
-
+#include "util.h"
 #ifdef MINISTL_ALLOCATOR_H
     #include <allocator.h>
 #else
@@ -21,9 +21,7 @@ class string {
 public:
     // 默认构造函数
     string() : elements(nullptr), cap(nullptr) {
-        #ifdef MINISTL_DEBUG
-            std::cout << "default constructor(string)" << std::endl;
-        #endif
+        _MINISTL_DEBUG("default constructor(string)\n");
     }
 
     // C字符串构造函数
@@ -67,27 +65,20 @@ string::string(const char * s) {
     auto newstr = alloc_n_copy(s, s1);
     elements = newstr.first;
     cap = newstr.second;
-    #ifdef MINISTL_DEBUG
-        std::cout << "string constructor with c_string" << std::endl;
-    #endif
+    _MINISTL_DEBUG("string constructor with c_string\n");
 }
 
 string::string(const string & s) {
     auto newdata = alloc_n_copy(s.begin(), s.end());
     elements = newdata.first;
     cap = newdata.second;
-
-    #ifdef MINISTL_DEBUG
-        std::cout << "string copy constructor" << std::endl;
-    #endif
+    _MINISTL_DEBUG("string copy constructor\n");
 }
 
 // 移动相当于偷取了参数s中的资源，然乎把s中的置为nullptr，并没有内存分配
 string::string(string && s) noexcept : elements(s.elements), cap(s.cap) {
     s.elements = s.cap = nullptr;
-    #ifdef MINISTL_DEBUG
-        std::cout << "string move constructor" << std::endl;
-    #endif
+    _MINISTL_DEBUG("string move constructor\n");
 }
 
 // 对于二元运算符，统一使用rhs(right hand side)表示运算符右侧，lhs(left hand side)表示运算符左侧
@@ -96,9 +87,7 @@ string& string::operator= (const string & rhs) {
     free();
     elements = newdata.first;
     cap = newdata.second;
-    #ifdef MINISTL_DEBUG
-        std::cout << "string assignment operator" << std::endl;
-    #endif
+    _MINISTL_DEBUG("string assignment operator\n");
     return *this;
 }
 
@@ -111,17 +100,13 @@ string& string::operator= (string && rhs) noexcept {
         rhs.elements = nullptr;
         rhs.cap = nullptr;
     }
-    #ifdef MINISTL_DEBUG
-        std::cout << "string move assignment operator" << std::endl;
-    #endif
+    _MINISTL_DEBUG("string move assignment operator\n");
     return *this;
 }
 
 string::~string() {
     free();
-    #ifdef MINISTL_DEBUG
-        std::cout << "string destructor" << std::endl;
-    #endif
+    _MINISTL_DEBUG("string destructor\n");
 }
 
 void string::free() {

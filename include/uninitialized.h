@@ -2,7 +2,10 @@
 #ifndef MINISTL_UNINITIALIZED_H
 #define MINISTL_UNINITIALIZED_H
 
+#include "iterator.h"
 #include "allocator.h"
+#include "type_traits.h"
+#include "algo.h"
 
 namespace ministl {
 
@@ -33,7 +36,7 @@ inline ForwardIterator _uninitialized_fill_n(ForwardIterator first,
 template <typename ForwardIterator, typename Size, typename T>
 inline ForwardIterator
 _uninitialized_fill_n_aux(ForwardIterator first, 
-                          Size n, const T* x, true_type) {
+                          Size n, const T* x, ministl::true_type) {
     return fill_n(first, n, x);
 }
 
@@ -42,7 +45,7 @@ _uninitialized_fill_n_aux(ForwardIterator first,
 template <typename ForwardIterator, typename Size, typename T>
 inline ForwardIterator
 _uninitialized_fill_n_aux(ForwardIterator first, 
-                          Size n, const T* x, false_type) {
+                          Size n, const T* x, ministl::false_type) {
     ForwardIterator cur = first;
     try {
         for ( ; n > 0; --n, ++cur) {
@@ -83,7 +86,7 @@ _uninitialized_copy(InputIterator first, InputIterator last,
 template <typename InputIterator, typename ForwardIterator>
 inline ForwardIterator
 _uninitialized_copy_aux(InputIterator first, InputIterator last, 
-                        ForwardIterator result, true_type) {
+                        ForwardIterator result, ministl::true_type) {
     return copy(first, last, result);
 }
 
@@ -91,7 +94,7 @@ _uninitialized_copy_aux(InputIterator first, InputIterator last,
 template <typename InputIterator, typename ForwardIterator>
 ForwardIterator
 _uninitialized_copy_aux(InputIterator first, InputIterator last, 
-                        ForwardIterator result, false_type) {
+                        ForwardIterator result, ministl::false_type) {
     ForwardIterator cur = result;
     try {
         for (; first != last; ++first, ++cur) {
@@ -141,14 +144,14 @@ _uninitialized_fill(ForwardIterator first, ForwardIterator last,
 template <typename ForwardIterator, typename T>
 ForwardIterator
 _uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, 
-                        const T& x, true_type) {
+                        const T& x, ministl::true_type) {
     fill(first, last, x);
 }
 
 template <typename ForwardIterator, typename T>
 ForwardIterator
 _uninitialized_fill_aux(ForwardIterator first, ForwardIterator last, 
-                        const T& x, false_type) {
+                        const T& x, ministl::false_type) {
     ForwardIterator cur = first;
     try {
         for (; cur != last; ++cur) {
