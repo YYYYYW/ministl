@@ -55,3 +55,71 @@ wyj 2022.06.14
 
 wyj 2022.06.17
 
+
+
+## 迭代器、萃取器、vector、部分算法更新
+
+- 增加了一个测试allocator的小程序
+
+  - 测试中遇到的问题：
+
+    - 不要将 #include 放在 namespace ministl { } 的大括号中间，否则会出现奇怪的错误，感觉和 #include 的展开顺序有关
+
+    - 在 allocate 中的 construct 函数中，增加一个参数为右值引用的函数
+
+    - ```C++
+      template <typename T, typename Alloc>
+      void allocator<T, Alloc>::construct(pointer p, T&& value);
+      ```
+
+    - 这是因为测试使用的std::vector，在添加元素的时候是需要使用参数为右值引用的 construct 函数
+
+  - 修改后使用 ministl::allocator 作为 std::vector 的分配器
+
+- 新增 util.h 文件
+
+  - _MINISTL_DEBUG 宏函数用于 debug 打印信息
+  - move函数 对应 std::move
+
+- 新增 type_traits.h 文件
+
+  - true_type 和 false_type
+  - type_traits
+
+- 新增iterator.h文件
+
+  - ```C++
+    struct input_iterator_tag { };
+    struct output_iterator_tag { };
+    struct forward_iterator_tag : public input_iterator_tag { };
+    struct bidirectional_iterator_tag : public forward_iterator_tag { };
+    struct random_access_iterator_tag : public bidirectional_iterator_tag { };
+    
+    
+    template <typename I>
+    struct iterator_traits {
+        typedef typename I::iterator_category   iterator_category;
+        typedef typename I::value_type          value_type;
+        typedef typename I::difference_type     difference_type;
+        typedef typename I::pointer             pointer;
+        typedef typename I::reference           refernece;
+    };
+    ```
+
+  - 用于迭代器萃取
+
+- 新增 algo.h 文件
+
+  - 新增copy函数，将两个迭代器范围内的值复制到另一个迭代器处
+  - 新增copy_backward函数，与copy类似，不过是从尾部向前复制
+  - 新增fill函数，将两个迭代器返回内的值使用给定值填充
+  - 新增fill_n函数，将一个迭代器开始后n个值使用给定值填充
+
+- 新增 vector.h 文件
+
+  - 初步实现基础的插入删除功能。
+  - 还缺少一个反向迭代器，缺少使用初始化列表进行初始化
+  - 比较操作符还需要完善
+  - 还未测试
+
+wyj 2022.07.05

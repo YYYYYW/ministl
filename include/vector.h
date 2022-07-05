@@ -143,8 +143,10 @@ public:
         else
             insert(end(), new_size - size(), x);
     }
-    void resize(size_type new_size) { resize(new_size, T()); }
-    void clear() { erase(begin(), end()); }
+    void resize(size_type new_size) 
+        { resize(new_size, T()); }
+    void clear() 
+        { erase(begin(), end()); }
 
     void insert(iterator position, size_type n, const T& x);
 

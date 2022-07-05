@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "util.h"
 
 #ifndef MINISTL_THROW_BAD_ALLOC
 #include <new>
@@ -34,6 +35,7 @@ private:
 
 public:
     static void * allocate(size_t n) {
+        _MINISTL_DEBUG("first_alloc allocate size %d\n", n);
         void *result = malloc(n);
         // 如果 malloc 失败了，则会调用 oom_malloc
         if (0 == result) result = oom_malloc(n);
@@ -41,12 +43,14 @@ public:
     }
 
     static void * reallocate(void *p, size_t n) {
+        _MINISTL_DEBUG("first_alloc reallocate at %p to size %d\n", p, n);
         void *result = realloc(p, n);
         if (0 == result) result = oom_realloc(p, n);
         return result;
     }
 
     static void deallocate(void *p, size_t) {
+        _MINISTL_DEBUG("first_alloc deallocate at %p\n", p);
         free(p); 
     }
 
@@ -140,6 +144,7 @@ public:
         obj * result;
         // 如果 n 大于 128 则使用一级配置器
         if (n > MAX_BYTES) return first_alloc_template::allocate(n);
+        _MINISTL_DEBUG("default_alloc allocate size %d\n", n);
         // 寻找16个free lists中适当的一个
         my_free_list = free_list + FREELIST_INDEX(n);
         result = *my_free_list;
@@ -150,6 +155,7 @@ public:
         }
         // 调整 free list
         *my_free_list = result->free_list_link;
+        _MINISTL_DEBUG("default_alloc allocate successful\n");
         return result;
     }
 
@@ -160,6 +166,7 @@ public:
             first_alloc_template::deallocate(p, n);
             return;
         }
+        _MINISTL_DEBUG("default_alloc deallocate at %p size %d\n", p, n);
         // 这里将 p 转为 obj* 给 q。
         obj * q = (obj*) p;
         obj * volatile * my_free_list;

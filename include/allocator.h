@@ -143,21 +143,25 @@ public:
 
 template <typename T, typename Alloc>
 void allocator<T, Alloc>::construct(pointer p) {
+    _MINISTL_DEBUG("ministl::allocator::construct at %p\n", p);
     ministl::construct(p);
 }
 
 template <typename T, typename Alloc>
 void allocator<T, Alloc>::construct(pointer p, const T& value) {
+    _MINISTL_DEBUG("ministl::allocator::construct at %p by const lvalue\n", p);
     ministl::construct(p, value);
 }
 
 template <typename T, typename Alloc>
 void allocator<T, Alloc>::construct(pointer p, T&& value) {
+    _MINISTL_DEBUG("ministl::allocator::construct at %p by rvalue\n", p);
     ministl::construct(p, ministl::move(value));
 }
 
 template <typename T, typename Alloc>
 void allocator<T, Alloc>::destroy(pointer p) {
+    _MINISTL_DEBUG("ministl::allocator::destroy at %p\n", p);
     ministl::destroy(p);
 }
 
